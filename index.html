@@ -4,13 +4,17 @@
     <meta charset="utf8">
     <title>Controls simulator</title>
     <style>
+      [loading] {
+        display: none;
+      }
       body {
         font-family: sans-serif;
+        text-align: center;
       }
     </style>
   </head>
 
-  <body>
+  <body loading>
     <div v-if="!supported">
       <h1>Please use Google Chrome</h1>
     </div>
@@ -69,10 +73,10 @@
             right.axes[1] > 0.95
           )
         },
-        {
-          name: 'Start intake',
-          check: (left, right) => left.buttons[1].pressed
-        },
+        // {
+        //   name: 'Start intake',
+        //   check: (left, right) => left.buttons[1].pressed
+        // },
         {
           name: 'Shoot a ball',
           check: (left, right) => left.buttons[0].pressed
@@ -137,6 +141,7 @@
           state.started = true;
           state.totalMistakes = 0;
           state.startTime = Date.now();
+          state.fails = [];
         },
 
         inCountdown: false,
@@ -212,6 +217,7 @@
       loop();
 
       PetiteVue.createApp(state).mount();
+      document.body.removeAttribute('loading');
     </script>
   </body>
 </html>
