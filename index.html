@@ -11,12 +11,22 @@
         font-family: sans-serif;
         text-align: center;
       }
+      table {
+        margin: auto;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #111;
+          color: #eee;
+          color-scheme: dark;
+        }
+      }
     </style>
   </head>
 
   <body loading>
     <div v-if="!supported">
-      <h1>Please use Google Chrome</h1>
+      <h1>Please use Edge</h1>
     </div>
     <div v-else-if="inCountdown">
       <h1>{{ countdown }}</h1>
@@ -30,6 +40,10 @@
       <p v-if="totalMistakes !== 0">
         But your score isn't eligble for the leaderboard because you made mistakes. :(
       </p>
+      <p v-else-if="!addedToLeaderboard">
+        Your name: <input type="text" v-model="leaderboardName" v-on:keydown.enter.prevent.stop="addToLeaderboard" autofocus>
+        <button v-on:click="addToLeaderboard" :disabled="!canAddToLeaderboard()">Add to leaderboard</button>
+      </p>
       <p>Press enter to go again.</p>
     </div>
     <div v-else>
@@ -42,63 +56,94 @@
       </p>
     </div>
 
+    <div v-if="(!started || finishedEverything) && !inCountdown">
+      <table border="1" v-if="leaderboard.length > 0">
+        <tbody>
+          <tr v-for="({name, time}, i) in leaderboard">
+            <td>#{{ i + 1 }}</td>
+            <td>{{ name }}</td>
+            <td>{{ formatTime(time) }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else>Leaderboard is empty :(</p>
+    </div>
+
     <script src="petite.js"></script>
     <script>
       const _CHALLENGES = [
         {
           name: 'Move forward',
-          check: (left, right) => (
-            left.axes[1] < -0.95 &&
-            right.axes[1] < -0.95
+          check: (primary, helms) => (
+            primary.axes[1] < -0.95
           )
         },
         {
           name: 'Move backward',
-          check: (left, right) => (
-            left.axes[1] > 0.95 &&
-            right.axes[1] > 0.95
+          check: (primary, helms) => (
+            primary.axes[1] > 0.95
           )
         },
         {
-          name: 'Turn left',
-          check: (left, right) => (
-            left.axes[1] > 0.95 &&
-            right.axes[1] < -0.95
+          name: 'Strafe right',
+          check: (primary, helms) => (
+            primary.axes[0] > 0.95
+          )
+        },
+        {
+          name: 'Strafe left',
+          check: (primary, helms) => (
+            primary.axes[0] < -0.95
           )
         },
         {
           name: 'Turn right',
-          check: (left, right) => (
-            left.axes[1] < -0.95 &&
-            right.axes[1] > 0.95
+          check: (primary, helms) => (
+            primary.axes[2] > 0.95
+          )
+        },
+        {
+          name: 'Turn left',
+          check: (primary, helms) => (
+            primary.axes[2] < -0.95
+          )
+        },
+        {
+          name: 'Put the intake down',
+          check: (primary, helms) => (
+            primary.buttons[0].pressed
           )
         },
         // {
-        //   name: 'Start intake',
-        //   check: (left, right) => left.buttons[1].pressed
+        //   name: 'Load ball through storage',
+        //   check: (primary, helms) => (
+        //     primary.buttons[2].pressed
+        //   )
         // },
         {
-          name: 'Shoot a ball',
-          check: (left, right) => left.buttons[0].pressed
+          name: 'Go into Turbo Mode',
+          check: (primary, helms) => (
+            primary.buttons[3].pressed
+          )
         },
         {
-          name: 'Start revving the flywheel',
-          check: (left, right) => left.buttons[2].pressed
+          name: 'Go into Slow Mode',
+          check: (primary, helms) => (
+            primary.buttons[1].pressed
+          )
         },
-        // {
-        //   name: 'Enable manual intake control',
-        //   check: (left, right) => left.buttons[8].pressed
-        // },
-        // [
-        //   {
-        //     name: 'Climber up',
-        //     check: (left, right) => left.buttons[6].pressed
-        //   },
-        //   {
-        //     name: 'Climber down',
-        //     check: (left, right) => left.buttons[7].pressed
-        //   },
-        // ]
+        {
+          name: 'Shoot into low goal',
+          check: (primary, helms) => (
+            primary.buttons[6].value > 0.5
+          )
+        },
+        {
+          name: 'Shoot into high goal',
+          check: (primary, helms) => (
+            primary.buttons[7].value > 0.5
+          )
+        },
       ];
 
       function shuffleArray(array) {
@@ -125,10 +170,38 @@
         return formatted;
       };
 
+      const leaderboardKey = 'leaderboard';
+
       const state = PetiteVue.reactive({
         formatTime,
 
         supported: navigator.userAgent.includes('Chrome'),
+
+        leaderboard: (() => {
+          const stored = localStorage.getItem(leaderboardKey);
+          if (stored) {
+            return JSON.parse(stored);
+          }
+          return [];
+        })(),
+        addedToLeaderboard: false,
+        leaderboardName: '',
+        addToLeaderboard: (e) => {
+          debugger;
+          if (!state.canAddToLeaderboard()) {
+            return;
+          }
+          state.leaderboard = [
+            ...state.leaderboard,
+            {
+              name: state.leaderboardName,
+              time: state.endTime - state.startTime
+            }
+          ].sort((a, b) => a.time - b.time);
+          state.addedToLeaderboard = true;
+          localStorage.setItem(leaderboardKey, JSON.stringify(state.leaderboard));
+        },
+        canAddToLeaderboard: () => state.leaderboardName !== '',
 
         connected: false,
         started: false,
@@ -141,13 +214,14 @@
           state.started = true;
           state.totalMistakes = 0;
           state.startTime = Date.now();
-          state.fails = [];
+          state.fail = [];
+          state.addedToLeaderboard = false;
         },
 
         inCountdown: false,
         countdown: 0,
         startCountdown: () => {
-          state.countdown = 3;
+          state.countdown = 2;
           state.inCountdown = true;
           const interval = setInterval(() => {
             if (state.countdown === 1) {
@@ -184,13 +258,13 @@
 
       const loop = () => {
         const gamepads = navigator.getGamepads();
-        const leftJoystick = gamepads[0];
-        const rightJoystick = gamepads[1];
-        const gamepadsConnected = leftJoystick && rightJoystick;
+        const primary = gamepads[0];
+        const helms = gamepads[1];
+        const gamepadsConnected = !!(primary);
         state.connected = gamepadsConnected;
 
         if (gamepadsConnected && state.started && !state.finishedEverything) {
-          const completedChallenges = state.challenges.filter((i) => i.check(leftJoystick, rightJoystick));
+          const completedChallenges = state.challenges.filter((i) => i.check(primary, helms));
           if (completedChallenges.length > 0) {
             const success = completedChallenges.length === 1 && completedChallenges[0] === state.challenge;
             if (success) {
