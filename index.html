@@ -175,7 +175,7 @@
       const state = PetiteVue.reactive({
         formatTime,
 
-        supported: navigator.userAgent.includes('Chrome'),
+        supported: true,
 
         leaderboard: (() => {
           const stored = localStorage.getItem(leaderboardKey);
