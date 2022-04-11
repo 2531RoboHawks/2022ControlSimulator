@@ -41,7 +41,7 @@
         But your score isn't eligble for the leaderboard because you made mistakes. :(
       </p>
       <p v-else-if="!addedToLeaderboard">
-        Your name: <input type="text" v-model="leaderboardName" v-on:keydown.enter.prevent.stop="addToLeaderboard" autofocus>
+        Your name: <input type="text" v-model="leaderboardName" v-on:keydown.enter.prevent.stop="addToLeaderboard">
         <button v-on:click="addToLeaderboard" :disabled="!canAddToLeaderboard()">Add to leaderboard</button>
       </p>
       <p>Press enter to go again.</p>
