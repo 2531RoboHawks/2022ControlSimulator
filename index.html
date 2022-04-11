@@ -170,7 +170,7 @@
         return formatted;
       };
 
-      const leaderboardKey = 'leaderboard';
+      const leaderboardKey = 'leaderboard2022';
 
       const state = PetiteVue.reactive({
         formatTime,
@@ -182,7 +182,8 @@
           if (stored) {
             return JSON.parse(stored);
           }
-          return [];
+          // defaults, snapshotted from start of practice 4/11/2022
+          return [{"name":"Aaron","time":6641},{"name":"Aaron","time":6792},{"name":"Aaron","time":6918},{"name":"Aaron","time":7052},{"name":"Kaden","time":7261},{"name":"Aaron","time":7264},{"name":"Aaron","time":7339},{"name":"Aaron","time":7361},{"name":"Aaron","time":7438},{"name":"Kaden","time":7483},{"name":"Aaron","time":7667},{"name":"matea","time":7756},{"name":"Aaron","time":7800},{"name":"matea","time":7841},{"name":"Aaron","time":7845},{"name":"Kaden","time":7891},{"name":"Aaron","time":7910},{"name":"Aaron","time":7966},{"name":"Aaron","time":8016},{"name":"Aaron","time":8058},{"name":"Aaron","time":8091},{"name":"Mr. Moan","time":8160},{"name":"Aaron","time":8161},{"name":"Mr. Moan","time":8212},{"name":"Aaron","time":8242},{"name":"Arim","time":8267},{"name":"Aaron","time":8277},{"name":"Aaron","time":8286},{"name":"better than noah(kaden)","time":8461},{"name":"Aaron","time":8487},{"name":"Mr. Moan","time":8506},{"name":"Aaron","time":8534},{"name":"Aaron","time":8549},{"name":"Aaron","time":8633},{"name":"Noah","time":8668},{"name":"matea","time":8669},{"name":"Aaron","time":8738},{"name":"Aaron","time":8769},{"name":"Kaden","time":8859},{"name":"Mr. Moan","time":8989},{"name":"kaden","time":9132},{"name":"Aaron","time":9211},{"name":"Mr. Moan","time":9454},{"name":"Mr. Moan","time":9471},{"name":"Noah","time":9575},{"name":"Noah","time":9657},{"name":"Mr. Moan","time":10064},{"name":"Aaron","time":10322},{"name":"Mr. Moan","time":10495},{"name":"Mr. Moan","time":11033},{"name":"Doodlebob","time":11058},{"name":"Mr. Moan","time":11174},{"name":"TBFThisWasMySecondTime","time":12505},{"name":"Kaitlyn N","time":15250},{"name":"Kaitlyn O ","time":17345},{"name":"Noah","time":3580636}];
         })(),
         addedToLeaderboard: false,
         leaderboardName: '',
