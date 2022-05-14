@@ -123,7 +123,7 @@
         {
           name: 'Go into Turbo Mode',
           check: (primary, helms) => (
-            primary.buttons[3].pressed
+            primary.buttons[5].pressed
           )
         },
         {
@@ -142,6 +142,12 @@
           name: 'Shoot into high goal',
           check: (primary, helms) => (
             primary.buttons[7].value > 0.5
+          )
+        },
+        {
+          name: 'Vision shoot',
+          check: (primary, helms) => (
+            primary.buttons[9].pressed
           )
         },
       ];
